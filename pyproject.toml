@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "api-watchdog"
+version = "0.1.0"
+description = "A CLI/GUI tool to periodically monitor and diff API responses"
+authors = [{ name = "Sachin Karthikeyan" }]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "requests",
+    "schedule"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "flake8"]
+
+[project.scripts]
+api-watchdog = "api_watchdog.entry:run"
+
+[tool.setuptools]
+packages = ["api_watchdog", "api_watchdog.utils"]

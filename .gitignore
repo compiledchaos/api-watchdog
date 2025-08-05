@@ -1,0 +1,8 @@
+stock.log
+weather.log
+api_watchdog.log
+api_watchdog.egg-info/
+__pycache__/
+.env
+.venv/
+windsurf.md
