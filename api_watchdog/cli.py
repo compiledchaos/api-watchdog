@@ -2,11 +2,23 @@ import argparse
 from api_watchdog.utils.config import WeatherConfig, StockConfig
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="CLI for API Watchdog")
-    subparsers = parser.add_subparsers(dest="api")
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command-line arguments for the API Watchdog CLI.
 
-    weather_parser = subparsers.add_parser("weather", help="Weather API")
+    The CLI supports two subcommands: "weather" and "stock". The "weather"
+    subcommand requires the --location argument and supports the --interval
+    and --log-file arguments. The "stock" subcommand requires the --stock
+    argument and supports the --interval and --log-file arguments.
+
+    Returns:
+        argparse.Namespace: The parsed arguments.
+    """
+
+    parser = argparse.ArgumentParser(description="CLI for API Watchdog")
+    subparsers = parser.add_subparsers(dest="api", required=True)
+
+    weather_parser = subparsers.add_parser("weather", help="Monitor the weather API")
     weather_parser.set_defaults(api=WeatherConfig)
     weather_parser.add_argument(
         "--location",
@@ -26,11 +38,11 @@ def parse_args():
         "--log-file",
         "-l",
         type=str,
-        default="api_watchdog.log",
+        default="weather_api_watchdog.log",
         help="File to log API responses to",
     )
 
-    stock_parser = subparsers.add_parser("stock", help="Stock API")
+    stock_parser = subparsers.add_parser("stock", help="Monitor the stock API")
     stock_parser.set_defaults(api=StockConfig)
     stock_parser.add_argument(
         "--stock",
@@ -50,7 +62,8 @@ def parse_args():
         "--log-file",
         "-l",
         type=str,
-        default="api_watchdog.log",
+        default="stock_api_watchdog.log",
         help="File to log API responses to",
     )
+
     return parser.parse_args()

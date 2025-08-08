@@ -18,7 +18,8 @@ dependencies = [
 dev = ["pytest", "black", "flake8"]
 
 [project.scripts]
-api-watchdog = "api_watchdog.entry:run"
+api-watchdog = "api_watchdog.entry:run_cli"
+api-watchdog-gui = "api_watchdog.entry:run_gui"
 
 [tool.setuptools]
 packages = ["api_watchdog", "api_watchdog.utils"]
