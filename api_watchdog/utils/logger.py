@@ -42,7 +42,7 @@ def get_logger(
         if log_to_console and not has_console_handler:
             # Define the format for the console log messages
             formatter = logging.Formatter(
-                "[%(asctime)s] %(levelname)s: %(message)s %(funcName)s",
+                "[%(asctime)s] %(levelname)s: %(message)s",
                 datefmt="%Y-%m-%d %H:%M:%S",
             )
             # Create and configure the console handler
@@ -60,7 +60,7 @@ def get_logger(
             fh = logging.FileHandler(log_path, mode="a", encoding="utf-8")
             fh.setLevel(logging.DEBUG)
             formatter = logging.Formatter(
-                "[%(asctime)s] %(levelname)s: %(message)s %(funcName)s",
+                "[%(asctime)s] %(levelname)s: %(message)s",
                 datefmt="%Y-%m-%d %H:%M:%S",
             )
             fh.setFormatter(formatter)
@@ -74,7 +74,7 @@ def get_logger(
 
     # Define a formatter for log messages
     formatter = logging.Formatter(
-        "[%(asctime)s] %(levelname)s: %(message)s %(funcName)s",
+        "[%(asctime)s] %(levelname)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
