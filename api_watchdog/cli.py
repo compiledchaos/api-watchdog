@@ -66,4 +66,6 @@ def parse_args() -> argparse.Namespace:
         help="File to log API responses to",
     )
 
+    parser.add_argument("--cli", "-c", action="store_true", help="Run in CLI mode")
+
     return parser.parse_args()
