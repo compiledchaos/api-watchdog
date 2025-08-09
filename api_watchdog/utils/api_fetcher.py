@@ -9,9 +9,11 @@ def fetch_api(api_url, max_retries=5, delay=5):
 
     Args:
         api_url (str): The URL of the API to fetch data from.
+        max_retries (int): The maximum number of times to retry fetching the API data.
+        delay (int): The delay in seconds between retry attempts.
 
     Returns:
-        dict: The JSON content returned by the API.
+        dict: The JSON content returned by the API, or None if the fetch fails.
     """
     logger = get_logger(name="api_fetcher", log_to_console=True, log_to_file=False)
     for attempt in range(1, max_retries + 1):
