@@ -1,6 +1,8 @@
 import tkinter as tk
-from tkinter import ttk
-from api_watchdog.utils.config import WeatherConfig, StockConfig
+from tkinter import ttk, messagebox
+import threading
+import time
+from api_watchdog.utils.api_configuration import WeatherConfig, StockConfig
 from api_watchdog.utils.gui_utils import (
     api_selector,
     interval_selector,
@@ -38,6 +40,51 @@ class APIWatchdogGUI:
         # Set up the user interface
         self.setup_ui()
 
+    def validate_entries(self):
+        """Validate the form entries.
+        
+        Returns:
+            bool: True if all entries are valid, False otherwise.
+        """
+        # Get values from the form
+        api_type = self.api_type.get()
+        interval = self.interval.get()
+        log_file = self.log_file.get() if hasattr(self, 'log_file') else ''
+        
+        # Check if required fields are empty
+        if not api_type:
+            messagebox.showerror("Error", "Please select an API type")
+            return False
+            
+        if not interval:
+            messagebox.showerror("Error", "Please enter an interval")
+            return False
+            
+        # Validate interval is a number
+        try:
+            interval = int(interval)
+            if interval <= 0:
+                raise ValueError("Interval must be positive")
+        except ValueError:
+            messagebox.showerror("Error", "Interval must be a positive number")
+            return False
+            
+        # Validate log file if specified
+        if log_file and not log_file.endswith('.log'):
+            messagebox.showerror("Error", "Log file must have a .log extension")
+            return False
+            
+        # Validate API-specific fields
+        if not hasattr(self, 'api_entries'):
+            self.api_entries = []
+            
+        for entry in self.api_entries:
+            if hasattr(entry, 'get') and not entry.get().strip():
+                messagebox.showerror("Error", "Please fill in all required fields")
+                return False
+                
+        return True
+        
     def setup_ui(self):
         """Set up the main UI components."""
         # Add label for the application
@@ -61,6 +108,38 @@ class APIWatchdogGUI:
         )
         self.set_button.grid(column=0, row=6, columnspan=2, pady=5)
 
+    def start(self):
+        """Start the API Watchdog monitoring."""
+        if not self.validate_entries():
+            return
+            
+        self.started = True
+        self.start_button.config(text="Stop")
+        
+        # Start the monitoring thread
+        self.monitor_thread = threading.Thread(target=self.monitor_api, daemon=True)
+        self.monitor_thread.start()
+    
+    def stop(self):
+        """Stop the API Watchdog monitoring."""
+        self.started = False
+        self.start_button.config(text="Start")
+    
+    def monitor_api(self):
+        """Monitor the API at regular intervals."""
+        while self.started:
+            try:
+                # Get the API configuration
+                api_class, interval, log_file, args = self.get_args()
+                
+                # Here you would typically call your API and update the UI
+                # For now, we'll just sleep for the interval
+                time.sleep(interval)
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"Error monitoring API: {str(e)}")
+                self.stop()
+    
     def start_api(self):
         """Start the API Watchdog application."""
         self.started = True  # Mark the application as started

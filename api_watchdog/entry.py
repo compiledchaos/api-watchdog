@@ -30,12 +30,12 @@ def run_cli():
     # Create a logger that will write to a file specified by the user, or
     # to the default log file if no file was specified
     log = get_logger(
-        name="api_watchdog_file", log_file=args.log_file, log_to_console=False
+        name="api_watchdog_file_cli", log_file=args.log_file, log_to_console=False
     )
 
     # Create a logger that will write to the console
     console_log = get_logger(
-        name="api_watchdog_console", log_to_console=True, log_to_file=False
+        name="api_watchdog_console_cli", log_to_console=True, log_to_file=False
     )
 
     # Start the API Watchdog
@@ -127,13 +127,17 @@ def monitor_api(api_class, interval, log_file, args, root):
         if log_file and isinstance(log_file, str) and log_file.strip():
             log_file_path = log_file.strip()
 
+        # Create a unique logger name based on the log file path
+        import hashlib
+        log_name = f"api_watchdog_{hashlib.md5(log_file_path.encode()).hexdigest()[:8]}"
+        
         # Initialize a logger for writing logs to file
         log = get_logger(
-            name="api_watchdog_file", log_file=log_file_path, log_to_console=False
+            name=log_name, log_file=log_file_path, log_to_console=False
         )
         # Initialize a separate logger for console output
         console_log = get_logger(
-            name="api_watchdog_console", log_to_console=True, log_to_file=False
+            name=f"{log_name}_console", log_to_console=True, log_to_file=False
         )
 
         # Create an instance of the API class with the provided arguments
@@ -183,7 +187,7 @@ def monitor_api(api_class, interval, log_file, args, root):
     except Exception as e:
         # Initialize a console logger if an error occurs during setup
         console_log = get_logger(
-            name="api_watchdog_console", log_to_console=True, log_to_file=False
+            name="api_watchdog_console_gui", log_to_console=True, log_to_file=False
         )
         # Log the error indicating the failure to start API monitoring
         console_log.error(f"API monitoring failed to start: {e}")
@@ -192,6 +196,7 @@ def monitor_api(api_class, interval, log_file, args, root):
 def run_gui():
     """Run the API Watchdog GUI application."""
     from threading import Thread
+    import tkinter as tk
 
     # Initialize the GUI
     root = tk.Tk()

@@ -1,5 +1,5 @@
 import argparse
-from api_watchdog.utils.config import WeatherConfig, StockConfig
+from api_watchdog.utils.api_configuration import WeatherConfig, StockConfig
 
 
 def parse_args() -> argparse.Namespace:

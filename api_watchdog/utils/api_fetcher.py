@@ -19,12 +19,18 @@ def fetch_api(api_url, max_retries=5, delay=5):
     for attempt in range(1, max_retries + 1):
         try:
             response = requests.get(api_url, timeout=10)  # timeout to avoid hanging
-            response.raise_for_status()  # raises error for 4xx/5xx
+            response.raise_for_status()  # raises HTTPError for 4XX/5XX responses
             return response.json()
+        except requests.exceptions.HTTPError as http_err:
+            logger.error(f"[Attempt {attempt}/{max_retries}] HTTP Error: {http_err}")
+            if attempt == max_retries:
+                raise
         except requests.exceptions.RequestException as e:
             logger.error(
                 f"[Attempt {attempt}/{max_retries}] Error fetching API data: {e}"
             )
-            if attempt < max_retries:
-                time.sleep(delay)
+            if attempt == max_retries:
+                raise
+
+        time.sleep(delay)  # wait before retrying
     return None

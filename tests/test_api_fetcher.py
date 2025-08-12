@@ -3,8 +3,7 @@
 import json
 from unittest.mock import patch, MagicMock
 import pytest
-import requests
-from requests.exceptions import RequestException, HTTPError, Timeout, ConnectionError
+from requests.exceptions import HTTPError, Timeout, ConnectionError
 
 from api_watchdog.utils.api_fetcher import fetch_api
 
@@ -29,7 +28,7 @@ class MockResponse:
         return None
 
 
-@patch("api_watchdog.utils.api_fetcher.req.get")
+@patch("api_watchdog.utils.api_fetcher.requests.get")
 def test_fetch_success(mock_get):
     """Test successful API fetch."""
     # Setup mock response
@@ -42,10 +41,10 @@ def test_fetch_success(mock_get):
 
     # Verify
     assert result == test_data
-    mock_get.assert_called_once_with("http://test-api.com")
+    mock_get.assert_called_once_with("http://test-api.com", timeout=10)
 
 
-@patch("api_watchdog.utils.api_fetcher.req.get")
+@patch("api_watchdog.utils.api_fetcher.requests.get")
 def test_fetch_http_error(mock_get):
     """Test API fetch with HTTP error."""
     # Create a mock response with error status code
@@ -53,18 +52,24 @@ def test_fetch_http_error(mock_get):
     mock_response.status_code = 404
     mock_response.text = '{"error": "Not found"}'
     mock_response.json.return_value = {"error": "Not found"}
+    mock_response.raise_for_status.side_effect = HTTPError(
+        "404 Client Error: Not Found"
+    )
 
     mock_get.return_value = mock_response
 
     # Test and verify
-    result = fetch_api("http://test-api.com/not-found")
+    with pytest.raises(HTTPError) as exc_info:
+        fetch_api(
+            "http://test-api.com/not-found", max_retries=1
+        )  # Set max_retries=1 to test only one attempt
 
-    # The function should return the JSON response even for error status codes
-    assert result == {"error": "Not found"}
-    mock_get.assert_called_once_with("http://test-api.com/not-found")
+    assert "404 Client Error: Not Found" in str(exc_info.value)
+    # Check that the API was called exactly once (since max_retries=1)
+    mock_get.assert_called_once_with("http://test-api.com/not-found", timeout=10)
 
 
-@patch("api_watchdog.utils.api_fetcher.req.get")
+@patch("api_watchdog.utils.api_fetcher.requests.get")
 def test_fetch_connection_error(mock_get):
     """Test API fetch with connection error."""
     # Setup mock to raise ConnectionError
@@ -72,13 +77,13 @@ def test_fetch_connection_error(mock_get):
 
     # Test and verify
     with pytest.raises(ConnectionError) as exc_info:
-        fetch_api("http://unreachable-api.com")
+        fetch_api("http://unreachable-api.com", max_retries=1)
 
     assert "Connection failed" in str(exc_info.value)
-    mock_get.assert_called_once_with("http://unreachable-api.com")
+    mock_get.assert_called_once_with("http://unreachable-api.com", timeout=10)
 
 
-@patch("api_watchdog.utils.api_fetcher.req.get")
+@patch("api_watchdog.utils.api_fetcher.requests.get")
 def test_fetch_timeout(mock_get):
     """Test API fetch with timeout."""
     # Setup mock to raise Timeout
@@ -86,13 +91,13 @@ def test_fetch_timeout(mock_get):
 
     # Test and verify
     with pytest.raises(Timeout) as exc_info:
-        fetch_api("http://slow-api.com")
+        fetch_api("http://slow-api.com", max_retries=1)
 
     assert "timed out" in str(exc_info.value).lower()
-    mock_get.assert_called_once_with("http://slow-api.com")
+    mock_get.assert_called_once_with("http://slow-api.com", timeout=10)
 
 
-@patch("api_watchdog.utils.api_fetcher.req.get")
+@patch("api_watchdog.utils.api_fetcher.requests.get")
 def test_fetch_invalid_json(mock_get):
     """Test API fetch with invalid JSON response."""
 
@@ -113,7 +118,7 @@ def test_fetch_invalid_json(mock_get):
 
     # Test and verify
     with pytest.raises(json.JSONDecodeError) as exc_info:
-        fetch_api("http://api-with-invalid-json.com")
+        fetch_api("http://api-with-invalid-json.com", max_retries=1)
 
     assert "Expecting value" in str(exc_info.value)
-    mock_get.assert_called_once_with("http://api-with-invalid-json.com")
+    mock_get.assert_called_once_with("http://api-with-invalid-json.com", timeout=10)
