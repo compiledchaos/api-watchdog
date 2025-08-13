@@ -129,12 +129,11 @@ def monitor_api(api_class, interval, log_file, args, root):
 
         # Create a unique logger name based on the log file path
         import hashlib
+
         log_name = f"api_watchdog_{hashlib.md5(log_file_path.encode()).hexdigest()[:8]}"
-        
+
         # Initialize a logger for writing logs to file
-        log = get_logger(
-            name=log_name, log_file=log_file_path, log_to_console=False
-        )
+        log = get_logger(name=log_name, log_file=log_file_path, log_to_console=False)
         # Initialize a separate logger for console output
         console_log = get_logger(
             name=f"{log_name}_console", log_to_console=True, log_to_file=False
