@@ -6,7 +6,7 @@ __pycache__/
 .env
 .venv/
 windsurf.md
-
+.venv2/
 build/
 dist/
 api_watchdog.egg-info/
