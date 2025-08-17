@@ -6,9 +6,9 @@ __pycache__/
 .env
 .venv/
 windsurf.md
-config.yaml
 .venv2/
-dependency_graphs/
 build/
 dist/
 api_watchdog.egg-info/
+dependency_graphs/
+config.yaml

@@ -1,5 +1,6 @@
-from api_watchdog.entry import run_cli, run_gui
-from api_watchdog.cli import parse_args
+from api_watchdog.cli_api import run_cli
+from api_watchdog.gui_api import run_gui
+from api_watchdog.core_gui_and_cli.cli import parse_args
 import sys
 from api_watchdog.utils.logger import get_logger
 
