@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -60,7 +61,12 @@ class StockConfig:
         self.log.info(f"Stock: {api['Meta Data']['2. Symbol']}")
 
         # Log the time of the latest data
-        self.log.info(f"Time: {api['Meta Data']['3. Last Refreshed']}")
+        # Convert UTC time to 12-hour format
+        time_obj = datetime.strptime(
+            api["Meta Data"]["3. Last Refreshed"], "%Y-%m-%d %H:%M:%S"
+        )
+        time_string = time_obj.strftime("%Y-%m-%d %I:%M:%S %p")
+        self.log.info(f"Time: {time_string}")
 
         # Get the time series key based on the interval
         time_series_key = f"Time Series ({self.interval}min)"
