@@ -10,3 +10,5 @@ windsurf.md
 build/
 dist/
 api_watchdog.egg-info/
+dependency_graphs/
+config.yaml
