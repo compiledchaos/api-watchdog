@@ -9,10 +9,7 @@ description = "A CLI/GUI tool to periodically monitor and diff API responses"
 authors = [{ name = "Sachin Karthikeyan" }]
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = [
-    "requests",
-    "schedule"
-]
+dependencies = ["requests"]
 
 [project.optional-dependencies]
 dev = ["pytest", "black", "flake8"]
